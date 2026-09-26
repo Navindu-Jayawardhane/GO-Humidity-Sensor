@@ -1,4 +1,4 @@
-# GO Humidity Sensor — Simple Firebase + GitHub Pages
+# GO Humidity Sensor
 
 This version intentionally removes Firebase email/password authentication.
 
