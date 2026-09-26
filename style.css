@@ -1,458 +1,167 @@
-/* ============================================================
-   GLOBAL
-   ============================================================ */
-
 * {
   box-sizing: border-box;
 }
 
-
 body {
-
   margin: 0;
-
-  font-family:
-    Arial,
-    Helvetica,
-    sans-serif;
-
-  background: #f4f6f8;
-
+  font-family: Arial, Helvetica, sans-serif;
+  background: #f4f5f7;
   color: #111;
-
 }
 
-
-
-/* ============================================================
-   HEADER
-   ============================================================ */
-
-.header {
-
+header {
   background: #111;
-
   color: white;
-
-  padding: 25px;
-
-  text-align: center;
-
-}
-
-
-.header h1 {
-
-  margin: 0;
-
-  font-size: 28px;
-
-  letter-spacing: 0.5px;
-
-}
-
-
-.header p {
-
-  margin: 8px 0 0;
-
-  color: #bbb;
-
-  font-size: 14px;
-
-}
-
-
-
-/* ============================================================
-   MAIN CONTAINER
-   ============================================================ */
-
-.container {
-
-  max-width: 1200px;
-
-  margin: auto;
-
-  padding: 25px;
-
-}
-
-
-
-/* ============================================================
-   FIREBASE CONNECTION STATUS
-   ============================================================ */
-
-.connection-bar {
-
-  background: white;
-
-  border-radius: 10px;
-
-  padding: 12px 16px;
-
-  margin-bottom: 18px;
-
-  box-shadow:
-    0 2px 10px
-    rgba(0, 0, 0, 0.08);
-
+  padding: 35px 6%;
   display: flex;
-
+  justify-content: space-between;
   align-items: center;
+  gap: 20px;
+}
 
-  gap: 10px;
+.eyebrow {
+  font-size: 11px;
+  letter-spacing: 2px;
+  color: #aaa;
+  margin-bottom: 8px;
+}
 
-  font-size: 14px;
+h1 {
+  margin: 0;
+  font-size: 42px;
+}
 
+header p {
+  margin: 8px 0 0;
+  color: #aaa;
+}
+
+.status {
+  display: flex;
+  align-items: center;
+  gap: 9px;
   font-weight: bold;
-
 }
 
-
-.status-dot {
-
+#statusDot {
   width: 10px;
-
   height: 10px;
-
   border-radius: 50%;
-
-  display: inline-block;
-
+  background: #888;
 }
 
-
-.status-dot.online {
-
-  background: #20a464;
-
+#statusDot.online {
+  background: #27c93f;
 }
 
-
-.status-dot.offline {
-
-  background: #d64545;
-
+main {
+  max-width: 1200px;
+  margin: auto;
+  padding: 35px 20px;
 }
-
-
-
-/* ============================================================
-   STATUS CARDS
-   ============================================================ */
 
 .cards {
-
   display: grid;
-
-  grid-template-columns:
-    repeat(3, 1fr);
-
+  grid-template-columns: repeat(3, 1fr);
   gap: 18px;
-
   margin-bottom: 25px;
-
 }
-
 
 .card {
-
   background: white;
-
-  border-radius: 12px;
-
-  padding: 22px;
-
-  box-shadow:
-    0 2px 10px
-    rgba(0, 0, 0, 0.08);
-
+  padding: 25px;
+  border-radius: 14px;
+  box-shadow: 0 5px 20px rgba(0,0,0,0.05);
 }
 
-
-.card-title {
-
-  font-size: 13px;
-
+.card span {
+  display: block;
   color: #777;
-
-  margin-bottom: 8px;
-
-  text-transform: uppercase;
-
+  font-size: 11px;
   letter-spacing: 1px;
-
-}
-
-
-.card-value {
-
-  font-size: 30px;
-
-  font-weight: bold;
-
-}
-
-
-
-/* ============================================================
-   SENSOR INFORMATION
-   ============================================================ */
-
-.info {
-
-  background: white;
-
-  border-radius: 12px;
-
-  padding: 20px;
-
-  margin-bottom: 25px;
-
-  box-shadow:
-    0 2px 10px
-    rgba(0, 0, 0, 0.08);
-
-}
-
-
-.info h3 {
-
-  margin-top: 0;
-
   margin-bottom: 12px;
-
 }
 
-
-.info p {
-
-  color: #555;
-
-  line-height: 1.6;
-
-  margin-bottom: 15px;
-
+.card strong {
+  display: block;
+  font-size: 28px;
 }
 
-
-.info-status {
-
-  display: flex;
-
-  gap: 8px;
-
-  font-size: 14px;
-
-  color: #555;
-
+.card small {
+  color: #999;
 }
 
-
-
-/* ============================================================
-   CHART
-   ============================================================ */
-
-.chart-container {
-
+.panel {
   background: white;
-
-  border-radius: 12px;
-
-  padding: 20px;
-
+  padding: 25px;
+  border-radius: 14px;
   margin-bottom: 25px;
-
-  box-shadow:
-    0 2px 10px
-    rgba(0, 0, 0, 0.08);
-
+  box-shadow: 0 5px 20px rgba(0,0,0,0.05);
 }
 
-
-.chart-title {
-
-  font-size: 18px;
-
-  font-weight: bold;
-
-  margin-bottom: 15px;
-
+.panel h2 {
+  margin-top: 0;
 }
 
+.panel p {
+  color: #777;
+}
 
 .chart-wrapper {
-
-  position: relative;
-
   height: 500px;
-
-  width: 100%;
-
 }
-
-
-
-/* ============================================================
-   TABLE
-   ============================================================ */
-
-.table-container {
-
-  background: white;
-
-  border-radius: 12px;
-
-  padding: 20px;
-
-  box-shadow:
-    0 2px 10px
-    rgba(0, 0, 0, 0.08);
-
-  overflow-x: auto;
-
-}
-
-
-.table-title {
-
-  font-size: 18px;
-
-  font-weight: bold;
-
-  margin-bottom: 15px;
-
-}
-
 
 table {
-
   width: 100%;
-
   border-collapse: collapse;
-
 }
 
-
-th,
-td {
-
-  padding: 10px;
-
+th, td {
+  padding: 12px;
+  border-bottom: 1px solid #eee;
   text-align: left;
-
-  border-bottom:
-    1px solid #eee;
-
-  font-size: 14px;
-
 }
-
 
 th {
-
-  background: #f5f5f5;
-
-  font-weight: bold;
-
+  background: #f7f7f7;
 }
 
-
-
-/* ============================================================
-   BUTTONS
-   ============================================================ */
-
-.controls {
-
-  display: flex;
-
-  gap: 10px;
-
-  flex-wrap: wrap;
-
-  margin-bottom: 25px;
-
-}
-
-
-button {
-
-  border: none;
-
-  padding: 12px 20px;
-
-  border-radius: 8px;
-
-  cursor: pointer;
-
-  font-size: 14px;
-
-  font-weight: bold;
-
-}
-
-
-.download {
-
+.research-note {
   background: #111;
-
   color: white;
-
+  padding: 25px;
+  border-radius: 14px;
 }
 
-
-.clear {
-
-  background: #ddd;
-
-  color: #111;
-
+.research-note p {
+  color: #bbb;
+  line-height: 1.7;
 }
 
-
-button:hover {
-
-  opacity: 0.8;
-
+footer {
+  text-align: center;
+  padding: 30px;
+  color: #888;
 }
-
-
-
-/* ============================================================
-   MOBILE / RESPONSIVE
-   ============================================================ */
 
 @media (max-width: 800px) {
+  header {
+    display: block;
+  }
+
+  .status {
+    margin-top: 20px;
+  }
 
   .cards {
-
     grid-template-columns: 1fr;
-
   }
 
+  h1 {
+    font-size: 32px;
+  }
 
   .chart-wrapper {
-
     height: 400px;
-
   }
-
-
-  .header h1 {
-
-    font-size: 22px;
-
-  }
-
-
-  .container {
-
-    padding: 15px;
-
-  }
-
 }
