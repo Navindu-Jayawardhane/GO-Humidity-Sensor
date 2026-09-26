@@ -1,167 +1,458 @@
+/* ============================================================
+   GLOBAL
+   ============================================================ */
+
 * {
   box-sizing: border-box;
 }
 
+
 body {
+
   margin: 0;
-  font-family: Arial, Helvetica, sans-serif;
-  background: #f4f5f7;
+
+  font-family:
+    Arial,
+    Helvetica,
+    sans-serif;
+
+  background: #f4f6f8;
+
   color: #111;
+
 }
 
-header {
+
+
+/* ============================================================
+   HEADER
+   ============================================================ */
+
+.header {
+
   background: #111;
+
   color: white;
-  padding: 35px 6%;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 20px;
+
+  padding: 25px;
+
+  text-align: center;
+
 }
 
-.eyebrow {
-  font-size: 11px;
-  letter-spacing: 2px;
-  color: #aaa;
-  margin-bottom: 8px;
-}
 
-h1 {
+.header h1 {
+
   margin: 0;
-  font-size: 42px;
+
+  font-size: 28px;
+
+  letter-spacing: 0.5px;
+
 }
 
-header p {
+
+.header p {
+
   margin: 8px 0 0;
-  color: #aaa;
+
+  color: #bbb;
+
+  font-size: 14px;
+
 }
 
-.status {
-  display: flex;
-  align-items: center;
-  gap: 9px;
-  font-weight: bold;
-}
 
-#statusDot {
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  background: #888;
-}
 
-#statusDot.online {
-  background: #27c93f;
-}
+/* ============================================================
+   MAIN CONTAINER
+   ============================================================ */
 
-main {
+.container {
+
   max-width: 1200px;
+
   margin: auto;
-  padding: 35px 20px;
+
+  padding: 25px;
+
 }
+
+
+
+/* ============================================================
+   FIREBASE CONNECTION STATUS
+   ============================================================ */
+
+.connection-bar {
+
+  background: white;
+
+  border-radius: 10px;
+
+  padding: 12px 16px;
+
+  margin-bottom: 18px;
+
+  box-shadow:
+    0 2px 10px
+    rgba(0, 0, 0, 0.08);
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 10px;
+
+  font-size: 14px;
+
+  font-weight: bold;
+
+}
+
+
+.status-dot {
+
+  width: 10px;
+
+  height: 10px;
+
+  border-radius: 50%;
+
+  display: inline-block;
+
+}
+
+
+.status-dot.online {
+
+  background: #20a464;
+
+}
+
+
+.status-dot.offline {
+
+  background: #d64545;
+
+}
+
+
+
+/* ============================================================
+   STATUS CARDS
+   ============================================================ */
 
 .cards {
+
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+
+  grid-template-columns:
+    repeat(3, 1fr);
+
   gap: 18px;
+
   margin-bottom: 25px;
+
 }
+
 
 .card {
+
   background: white;
-  padding: 25px;
-  border-radius: 14px;
-  box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+
+  border-radius: 12px;
+
+  padding: 22px;
+
+  box-shadow:
+    0 2px 10px
+    rgba(0, 0, 0, 0.08);
+
 }
 
-.card span {
-  display: block;
+
+.card-title {
+
+  font-size: 13px;
+
   color: #777;
-  font-size: 11px;
+
+  margin-bottom: 8px;
+
+  text-transform: uppercase;
+
   letter-spacing: 1px;
-  margin-bottom: 12px;
+
 }
 
-.card strong {
-  display: block;
-  font-size: 28px;
+
+.card-value {
+
+  font-size: 30px;
+
+  font-weight: bold;
+
 }
 
-.card small {
-  color: #999;
-}
 
-.panel {
+
+/* ============================================================
+   SENSOR INFORMATION
+   ============================================================ */
+
+.info {
+
   background: white;
-  padding: 25px;
-  border-radius: 14px;
+
+  border-radius: 12px;
+
+  padding: 20px;
+
   margin-bottom: 25px;
-  box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+
+  box-shadow:
+    0 2px 10px
+    rgba(0, 0, 0, 0.08);
+
 }
 
-.panel h2 {
+
+.info h3 {
+
   margin-top: 0;
+
+  margin-bottom: 12px;
+
 }
 
-.panel p {
-  color: #777;
+
+.info p {
+
+  color: #555;
+
+  line-height: 1.6;
+
+  margin-bottom: 15px;
+
 }
+
+
+.info-status {
+
+  display: flex;
+
+  gap: 8px;
+
+  font-size: 14px;
+
+  color: #555;
+
+}
+
+
+
+/* ============================================================
+   CHART
+   ============================================================ */
+
+.chart-container {
+
+  background: white;
+
+  border-radius: 12px;
+
+  padding: 20px;
+
+  margin-bottom: 25px;
+
+  box-shadow:
+    0 2px 10px
+    rgba(0, 0, 0, 0.08);
+
+}
+
+
+.chart-title {
+
+  font-size: 18px;
+
+  font-weight: bold;
+
+  margin-bottom: 15px;
+
+}
+
 
 .chart-wrapper {
+
+  position: relative;
+
   height: 500px;
+
+  width: 100%;
+
 }
+
+
+
+/* ============================================================
+   TABLE
+   ============================================================ */
+
+.table-container {
+
+  background: white;
+
+  border-radius: 12px;
+
+  padding: 20px;
+
+  box-shadow:
+    0 2px 10px
+    rgba(0, 0, 0, 0.08);
+
+  overflow-x: auto;
+
+}
+
+
+.table-title {
+
+  font-size: 18px;
+
+  font-weight: bold;
+
+  margin-bottom: 15px;
+
+}
+
 
 table {
+
   width: 100%;
+
   border-collapse: collapse;
+
 }
 
-th, td {
-  padding: 12px;
-  border-bottom: 1px solid #eee;
+
+th,
+td {
+
+  padding: 10px;
+
   text-align: left;
+
+  border-bottom:
+    1px solid #eee;
+
+  font-size: 14px;
+
 }
+
 
 th {
-  background: #f7f7f7;
+
+  background: #f5f5f5;
+
+  font-weight: bold;
+
 }
 
-.research-note {
+
+
+/* ============================================================
+   BUTTONS
+   ============================================================ */
+
+.controls {
+
+  display: flex;
+
+  gap: 10px;
+
+  flex-wrap: wrap;
+
+  margin-bottom: 25px;
+
+}
+
+
+button {
+
+  border: none;
+
+  padding: 12px 20px;
+
+  border-radius: 8px;
+
+  cursor: pointer;
+
+  font-size: 14px;
+
+  font-weight: bold;
+
+}
+
+
+.download {
+
   background: #111;
+
   color: white;
-  padding: 25px;
-  border-radius: 14px;
+
 }
 
-.research-note p {
-  color: #bbb;
-  line-height: 1.7;
+
+.clear {
+
+  background: #ddd;
+
+  color: #111;
+
 }
 
-footer {
-  text-align: center;
-  padding: 30px;
-  color: #888;
+
+button:hover {
+
+  opacity: 0.8;
+
 }
+
+
+
+/* ============================================================
+   MOBILE / RESPONSIVE
+   ============================================================ */
 
 @media (max-width: 800px) {
-  header {
-    display: block;
-  }
-
-  .status {
-    margin-top: 20px;
-  }
 
   .cards {
+
     grid-template-columns: 1fr;
+
   }
 
-  h1 {
-    font-size: 32px;
-  }
 
   .chart-wrapper {
+
     height: 400px;
+
   }
+
+
+  .header h1 {
+
+    font-size: 22px;
+
+  }
+
+
+  .container {
+
+    padding: 15px;
+
+  }
+
 }
