@@ -1,103 +1,270 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
+
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>GO Sensor | Live Research Monitor</title>
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
+
+  <title>GO Sensor Voltage Monitor</title>
+
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <!-- Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-database-compat.js"></script>
+
   <link rel="stylesheet" href="style.css">
+
 </head>
 
+
 <body>
-<header>
-  <div>
-    <div class="eyebrow">RESEARCH / IoT / GRAPHENE</div>
-    <h1>GO Sensor</h1>
-    <p>Graphene Oxide Humidity Sensing Platform</p>
-  </div>
 
-  <div class="status">
-    <span id="statusDot"></span>
-    <span id="statusText">Connecting...</span>
-  </div>
-</header>
 
-<main>
-  <section class="cards">
-    <div class="card">
-      <span>CURRENT VOLTAGE</span>
-      <strong id="voltage">--</strong>
-      <small>V</small>
-    </div>
+  <!-- ============================================================
+       HEADER
+       ============================================================ -->
 
-    <div class="card">
-      <span>SENSOR</span>
-      <strong>GO_SENSOR_01</strong>
-      <small>Device ID</small>
-    </div>
+  <div class="header">
 
-    <div class="card">
-      <span>LAST UPDATE</span>
-      <strong id="lastUpdate">--</strong>
-      <small>Firebase</small>
-    </div>
-  </section>
+    <h1>
+      GO-Based Humidity Sensor
+    </h1>
 
-  <section class="panel">
-    <div class="panel-header">
-      <div>
-        <h2>Live Electrical Response</h2>
-        <p>Real-time voltage response from the GO sensor</p>
-      </div>
-    </div>
-
-    <div class="chart-wrapper">
-      <canvas id="chart"></canvas>
-    </div>
-  </section>
-
-  <section class="panel">
-    <h2>Latest Measurements</h2>
-    <table>
-      <thead>
-        <tr>
-          <th>Time</th>
-          <th>Voltage</th>
-        </tr>
-      </thead>
-      <tbody id="measurementTable"></tbody>
-    </table>
-  </section>
-
-  <section class="research-note">
-    <h2>About the Measurement</h2>
     <p>
-      This dashboard displays the electrical response of a graphene oxide
-      sensing element through a Wheatstone bridge, instrumentation amplifier
-      and ESP32 ADC. No voltage-to-relative-humidity calibration is applied
-      at this stage.
+      Graphene Oxide Sensor • ESP32 Data Acquisition
     </p>
-  </section>
-</main>
 
-<footer>GO Sensor Research Platform</footer>
+  </div>
 
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-<script type="module">
-  import { initializeApp }
-    from "https://www.gstatic.com/firebasejs/12.3.0/firebase-app.js";
 
-  import {
-    getDatabase,
-    ref,
-    onValue,
-    query,
-    orderByChild,
-    limitToLast
-  } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-database.js";
+  <div class="container">
 
-  // Replace these values with the Firebase Web App configuration
-  // from Firebase Console -> Project settings -> Your apps.
+
+    <!-- ============================================================
+         CONNECTION STATUS
+         ============================================================ -->
+
+    <div class="connection-bar">
+
+      <span
+        id="connectionDot"
+        class="status-dot offline"
+      ></span>
+
+      <span id="connectionText">
+        Connecting to Firebase...
+      </span>
+
+    </div>
+
+
+
+    <!-- ============================================================
+         CONTROL BUTTONS
+         ============================================================ -->
+
+    <div class="controls">
+
+      <button
+        class="download"
+        onclick="downloadCSV()"
+      >
+        Download CSV
+      </button>
+
+
+      <button
+        class="clear"
+        onclick="clearDisplay()"
+      >
+        Clear Display
+      </button>
+
+    </div>
+
+
+
+    <!-- ============================================================
+         LIVE VALUES
+         ============================================================ -->
+
+    <div class="cards">
+
+
+      <div class="card">
+
+        <div class="card-title">
+          Current Sensor Voltage
+        </div>
+
+        <div
+          class="card-value"
+          id="voltageValue"
+        >
+          -- V
+        </div>
+
+      </div>
+
+
+
+      <div class="card">
+
+        <div class="card-title">
+          Measurement Time
+        </div>
+
+        <div
+          class="card-value"
+          id="timeValue"
+        >
+          -- s
+        </div>
+
+      </div>
+
+
+
+      <div class="card">
+
+        <div class="card-title">
+          ADC Input
+        </div>
+
+        <div
+          class="card-value"
+          id="adcValue"
+        >
+          --
+        </div>
+
+      </div>
+
+
+    </div>
+
+
+
+    <!-- ============================================================
+         SENSOR INFORMATION
+         ============================================================ -->
+
+    <div class="info">
+
+      <h3>
+        Live GO Sensor Response
+      </h3>
+
+      <p>
+
+        This dashboard displays the electrical response
+        of the graphene oxide sensor measured through
+        the Wheatstone bridge and instrumentation amplifier.
+
+        The voltage is displayed directly from the
+        ESP32 ADC without humidity calibration,
+        averaging, smoothing, filtering, or DHT22 data.
+
+      </p>
+
+      <div class="info-status">
+
+        <span>
+          Device:
+        </span>
+
+        <strong id="deviceValue">
+          GO_SENSOR_01
+        </strong>
+
+      </div>
+
+    </div>
+
+
+
+    <!-- ============================================================
+         VOLTAGE CHART
+         ============================================================ -->
+
+    <div class="chart-container">
+
+      <div class="chart-title">
+        Sensor Voltage Response
+      </div>
+
+      <div class="chart-wrapper">
+
+        <canvas id="voltageChart"></canvas>
+
+      </div>
+
+    </div>
+
+
+
+    <!-- ============================================================
+         DATA TABLE
+         ============================================================ -->
+
+    <div class="table-container">
+
+      <div class="table-title">
+        Recent Measurements
+      </div>
+
+
+      <table>
+
+        <thead>
+
+          <tr>
+
+            <th>
+              Time (s)
+            </th>
+
+            <th>
+              Voltage (V)
+            </th>
+
+          </tr>
+
+        </thead>
+
+
+        <tbody id="dataTable">
+
+        </tbody>
+
+      </table>
+
+    </div>
+
+
+  </div>
+
+
+
+  <!-- ============================================================
+       JAVASCRIPT
+       ============================================================ -->
+
+  <script>
+
+
+    // ============================================================
+    // FIREBASE CONFIGURATION
+    // ============================================================
+
 const firebaseConfig = {
   apiKey: "AIzaSyB7sQ-PZnhfBufhDovdoT0yDe1mzpukWHc",
   authDomain: "esp32-smart-environment-9624f.firebaseapp.com",
@@ -109,98 +276,791 @@ const firebaseConfig = {
   measurementId: "G-6ZW0C1LPSX"
 };
 
-  const app = initializeApp(firebaseConfig);
-  const db = getDatabase(app);
-  const DEVICE_ID = "GO_SENSOR_01";
 
-  const ctx = document.getElementById("chart").getContext("2d");
+    // ============================================================
+    // DEVICE
+    // ============================================================
 
-  const chart = new Chart(ctx, {
-    type: "line",
-    data: {
-      labels: [],
-      datasets: [{
-        label: "Sensor Voltage (V)",
-        data: [],
-        borderWidth: 2,
-        pointRadius: 1,
-        tension: 0.05,
-        fill: false
-      }]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      animation: false,
-      scales: {
-        x: { title: { display: true, text: "Time" } },
-        y: { title: { display: true, text: "Voltage (V)" } }
+    const DEVICE_ID = "GO_SENSOR_01";
+
+
+    // ============================================================
+    // INITIALIZE FIREBASE
+    // ============================================================
+
+    firebase.initializeApp(firebaseConfig);
+
+    const database =
+      firebase.database();
+
+
+    // ============================================================
+    // DATABASE REFERENCES
+    // ============================================================
+
+    const currentRef =
+      database.ref(
+        "devices/" + DEVICE_ID
+      );
+
+
+    const readingsRef =
+      database.ref(
+        "readings/" + DEVICE_ID
+      );
+
+
+
+    // ============================================================
+    // CHART SETUP
+    // ============================================================
+
+    const ctx =
+      document
+        .getElementById("voltageChart")
+        .getContext("2d");
+
+
+    const voltageChart =
+      new Chart(ctx, {
+
+        type: "line",
+
+        data: {
+
+          labels: [],
+
+          datasets: [
+
+            {
+
+              label:
+                "GO Sensor Voltage (V)",
+
+              data: [],
+
+              borderWidth: 2,
+
+              pointRadius: 1,
+
+              pointHoverRadius: 4,
+
+              tension: 0,
+
+              fill: false
+
+            }
+
+          ]
+
+        },
+
+
+        options: {
+
+          responsive: true,
+
+          maintainAspectRatio: false,
+
+          animation: false,
+
+          interaction: {
+
+            intersect: false,
+
+            mode: "index"
+
+          },
+
+
+          scales: {
+
+            x: {
+
+              title: {
+
+                display: true,
+
+                text: "Time (s)"
+
+              }
+
+            },
+
+
+            y: {
+
+              title: {
+
+                display: true,
+
+                text: "Sensor Voltage (V)"
+
+              },
+
+              beginAtZero: false
+
+            }
+
+          },
+
+
+          plugins: {
+
+            legend: {
+
+              display: true
+
+            }
+
+          }
+
+        }
+
+      });
+
+
+
+    // ============================================================
+    // MAXIMUM DISPLAYED POINTS
+    // ============================================================
+
+    const MAX_POINTS = 600;
+
+
+
+    // ============================================================
+    // CONNECTION STATUS
+    // ============================================================
+
+    const connectedRef =
+      database.ref(".info/connected");
+
+
+    connectedRef.on(
+      "value",
+      function(snapshot) {
+
+        const dot =
+          document.getElementById(
+            "connectionDot"
+          );
+
+        const text =
+          document.getElementById(
+            "connectionText"
+          );
+
+
+        if (snapshot.val() === true) {
+
+          dot.className =
+            "status-dot online";
+
+          text.textContent =
+            "Firebase connected";
+
+        }
+
+        else {
+
+          dot.className =
+            "status-dot offline";
+
+          text.textContent =
+            "Firebase disconnected";
+
+        }
+
       }
-    }
-  });
-
-  const deviceRef = ref(db, "devices/" + DEVICE_ID);
-
-  onValue(deviceRef, snapshot => {
-    const data = snapshot.val();
-    if (!data) return;
-
-    if (data.voltage !== undefined) {
-      document.getElementById("voltage").textContent =
-        Number(data.voltage).toFixed(4);
-    }
-
-    if (data.timestamp !== undefined) {
-      document.getElementById("lastUpdate").textContent =
-        new Date(data.timestamp * 1000).toLocaleTimeString();
-    }
-
-    document.getElementById("statusDot").classList.add("online");
-    document.getElementById("statusText").textContent = "LIVE";
-  });
-
-  const readingsRef = query(
-    ref(db, "readings/" + DEVICE_ID),
-    orderByChild("timestamp"),
-    limitToLast(300)
-  );
-
-  onValue(readingsRef, snapshot => {
-    const data = snapshot.val();
-    if (!data) return;
-
-    const entries = Object.values(data);
-    entries.sort((a, b) => a.timestamp - b.timestamp);
-
-    chart.data.labels = entries.map(item =>
-      new Date(item.timestamp * 1000).toLocaleTimeString()
     );
 
-    chart.data.datasets[0].data = entries.map(item =>
-      Number(item.voltage)
+
+
+    // ============================================================
+    // CURRENT SENSOR DATA
+    //
+    // Firebase listener updates immediately whenever the ESP32
+    // changes devices/GO_SENSOR_01.
+    // ============================================================
+
+    currentRef.on(
+      "value",
+      function(snapshot) {
+
+        const data =
+          snapshot.val();
+
+
+        if (!data) {
+
+          return;
+
+        }
+
+
+        // --------------------------------------------------------
+        // Voltage
+        // --------------------------------------------------------
+
+        if (
+          typeof data.sensor_voltage_V ===
+          "number"
+        ) {
+
+          const voltage =
+            data.sensor_voltage_V;
+
+
+          document
+            .getElementById("voltageValue")
+            .textContent =
+              voltage.toFixed(4) + " V";
+
+
+          // Calculate ADC value using the same relationship
+          // used by the original ESP32 code.
+
+          const adc =
+            Math.round(
+              voltage *
+              4095.0 /
+              3.3
+            );
+
+
+          document
+            .getElementById("adcValue")
+            .textContent =
+              adc;
+
+        }
+
+
+
+        // --------------------------------------------------------
+        // Measurement time
+        // --------------------------------------------------------
+
+        if (
+          typeof data.timestamp ===
+          "number"
+        ) {
+
+          const seconds =
+            data.timestamp / 1000;
+
+
+          document
+            .getElementById("timeValue")
+            .textContent =
+              seconds.toFixed(0) + " s";
+
+        }
+
+
+
+        // --------------------------------------------------------
+        // Device
+        // --------------------------------------------------------
+
+        if (data.device_id) {
+
+          document
+            .getElementById("deviceValue")
+            .textContent =
+              data.device_id;
+
+        }
+
+      }
     );
 
-    chart.update();
 
-    const table = document.getElementById("measurementTable");
-    table.innerHTML = "";
 
-    entries.slice(-20).reverse().forEach(item => {
-      const row = document.createElement("tr");
-      const time = document.createElement("td");
-      const voltage = document.createElement("td");
+    // ============================================================
+    // LOAD EXISTING HISTORICAL DATA
+    // ============================================================
 
-      time.textContent =
-        new Date(item.timestamp * 1000).toLocaleTimeString();
+    readingsRef
+      .limitToLast(MAX_POINTS)
+      .once("value")
+      .then(function(snapshot) {
 
-      voltage.textContent =
-        Number(item.voltage).toFixed(4) + " V";
+        const readings = [];
 
-      row.appendChild(time);
-      row.appendChild(voltage);
-      table.appendChild(row);
-    });
-  });
-</script>
+
+        snapshot.forEach(
+          function(childSnapshot) {
+
+            const data =
+              childSnapshot.val();
+
+
+            if (
+              data &&
+              typeof data.sensor_voltage_V ===
+              "number"
+            ) {
+
+              readings.push(data);
+
+            }
+
+          }
+        );
+
+
+        readings.sort(
+          function(a, b) {
+
+            return (
+              (a.timestamp || 0) -
+              (b.timestamp || 0)
+            );
+
+          }
+        );
+
+
+        readings.forEach(
+          function(data) {
+
+            addReadingToChart(
+              data,
+              false
+            );
+
+          }
+        );
+
+
+        voltageChart.update();
+
+      });
+
+
+
+    // ============================================================
+    // REAL-TIME HISTORICAL DATA
+    //
+    // New Firebase child = new sensor reading.
+    //
+    // No averaging.
+    // No smoothing.
+    // No filtering.
+    // No batching.
+    // ============================================================
+
+    readingsRef
+      .limitToLast(MAX_POINTS)
+      .on(
+        "child_added",
+        function(snapshot) {
+
+          const data =
+            snapshot.val();
+
+
+          if (!data) {
+
+            return;
+
+          }
+
+
+          addReadingToChart(
+            data,
+            true
+          );
+
+        }
+      );
+
+
+
+    // ============================================================
+    // ADD READING TO CHART
+    // ============================================================
+
+    function addReadingToChart(
+      data,
+      updateChart
+    ) {
+
+      if (
+        typeof data.sensor_voltage_V !==
+        "number"
+      ) {
+
+        return;
+
+      }
+
+
+      const voltage =
+        data.sensor_voltage_V;
+
+
+      const seconds =
+        typeof data.timestamp ===
+        "number"
+          ? data.timestamp / 1000
+          : 0;
+
+
+      // ----------------------------------------------------------
+      // Prevent duplicate points
+      // ----------------------------------------------------------
+
+      const labels =
+        voltageChart.data.labels;
+
+
+      const values =
+        voltageChart.data.datasets[0].data;
+
+
+      const existingIndex =
+        labels.findIndex(
+          function(label) {
+
+            return (
+              Number(label) ===
+              Number(seconds)
+            );
+
+          }
+        );
+
+
+      if (existingIndex !== -1) {
+
+        return;
+
+      }
+
+
+      // ----------------------------------------------------------
+      // Add raw value directly
+      // ----------------------------------------------------------
+
+      labels.push(
+        seconds.toFixed(0)
+      );
+
+
+      values.push(
+        voltage
+      );
+
+
+      // ----------------------------------------------------------
+      // Limit graph to latest 600 points
+      // ----------------------------------------------------------
+
+      while (
+        labels.length >
+        MAX_POINTS
+      ) {
+
+        labels.shift();
+
+        values.shift();
+
+      }
+
+
+      // ----------------------------------------------------------
+      // Update chart immediately
+      // ----------------------------------------------------------
+
+      if (updateChart) {
+
+        voltageChart.update(
+          "none"
+        );
+
+      }
+
+
+      // ----------------------------------------------------------
+      // Add to table
+      // ----------------------------------------------------------
+
+      addTableRow(
+        seconds,
+        voltage
+      );
+
+    }
+
+
+
+    // ============================================================
+    // TABLE
+    // ============================================================
+
+    function addTableRow(
+      seconds,
+      voltage
+    ) {
+
+      const table =
+        document.getElementById(
+          "dataTable"
+        );
+
+
+      const row =
+        document.createElement(
+          "tr"
+        );
+
+
+      const timeCell =
+        document.createElement(
+          "td"
+        );
+
+
+      const voltageCell =
+        document.createElement(
+          "td"
+        );
+
+
+      timeCell.textContent =
+        Number(seconds).toFixed(0) +
+        " s";
+
+
+      voltageCell.textContent =
+        Number(voltage).toFixed(4) +
+        " V";
+
+
+      row.appendChild(
+        timeCell
+      );
+
+
+      row.appendChild(
+        voltageCell
+      );
+
+
+      table.insertBefore(
+        row,
+        table.firstChild
+      );
+
+
+      // Keep latest 20 rows
+
+      while (
+        table.children.length >
+        20
+      ) {
+
+        table.removeChild(
+          table.lastChild
+        );
+
+      }
+
+    }
+
+
+
+    // ============================================================
+    // DOWNLOAD CSV
+    // ============================================================
+
+    function downloadCSV() {
+
+      readingsRef
+        .once("value")
+        .then(function(snapshot) {
+
+          let csv =
+            "time (s),voltage (V)\n";
+
+
+          const readings = [];
+
+
+          snapshot.forEach(
+            function(childSnapshot) {
+
+              const data =
+                childSnapshot.val();
+
+
+              if (
+                data &&
+                typeof data.sensor_voltage_V ===
+                "number"
+              ) {
+
+                readings.push(data);
+
+              }
+
+            }
+          );
+
+
+          readings.sort(
+            function(a, b) {
+
+              return (
+                (a.timestamp || 0) -
+                (b.timestamp || 0)
+              );
+
+            }
+          );
+
+
+          readings.forEach(
+            function(data) {
+
+              const time =
+                (data.timestamp || 0) /
+                1000;
+
+
+              const voltage =
+                data.sensor_voltage_V;
+
+
+              csv +=
+                time.toFixed(0) +
+                "," +
+                voltage.toFixed(4) +
+                "\n";
+
+            }
+          );
+
+
+          const blob =
+            new Blob(
+              [csv],
+              {
+                type:
+                  "text/csv;charset=utf-8;"
+              }
+            );
+
+
+          const url =
+            URL.createObjectURL(
+              blob
+            );
+
+
+          const link =
+            document.createElement(
+              "a"
+            );
+
+
+          link.href =
+            url;
+
+
+          link.download =
+            "GO_sensor_readings.csv";
+
+
+          document.body.appendChild(
+            link
+          );
+
+
+          link.click();
+
+
+          document.body.removeChild(
+            link
+          );
+
+
+          URL.revokeObjectURL(
+            url
+          );
+
+        });
+
+    }
+
+
+
+    // ============================================================
+    // CLEAR DISPLAY
+    //
+    // This clears ONLY the browser display.
+    // It does NOT delete Firebase research data.
+    // ============================================================
+
+    function clearDisplay() {
+
+
+      voltageChart.data.labels =
+        [];
+
+
+      voltageChart
+        .data
+        .datasets[0]
+        .data =
+        [];
+
+
+      voltageChart.update(
+        "none"
+      );
+
+
+      document
+        .getElementById(
+          "dataTable"
+        )
+        .innerHTML =
+        "";
+
+
+      document
+        .getElementById(
+          "voltageValue"
+        )
+        .textContent =
+        "-- V";
+
+
+      document
+        .getElementById(
+          "timeValue"
+        )
+        .textContent =
+        "-- s";
+
+
+      document
+        .getElementById(
+          "adcValue"
+        )
+        .textContent =
+        "--";
+
+    }
+
+
+  </script>
+
+
 </body>
+
 </html>
