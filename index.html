@@ -96,29 +96,47 @@
     limitToLast
   } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-database.js";
 
-  // Replace these values with the Firebase Web App configuration
-  // from Firebase Console -> Project settings -> Your apps.
-const firebaseConfig = {
-  apiKey: "AIzaSyB7sQ-PZnhfBufhDovdoT0yDe1mzpukWHc",
-  authDomain: "esp32-smart-environment-9624f.firebaseapp.com",
-  databaseURL: "https://esp32-smart-environment-9624f-default-rtdb.europe-west1.firebasedatabase.app",
-  projectId: "esp32-smart-environment-9624f",
-  storageBucket: "esp32-smart-environment-9624f.firebasestorage.app",
-  messagingSenderId: "986282112194",
-  appId: "1:986282112194:web:cc69db76f8b009d6a2f75b",
-  measurementId: "G-6ZW0C1LPSX"
-};
+
+  // ==============================
+  // FIREBASE CONFIGURATION
+  // ==============================
+
+  const firebaseConfig = {
+    apiKey: "YOUR_FIREBASE_WEB_API_KEY",
+    authDomain: "esp32-smart-environment-9624f.firebaseapp.com",
+    databaseURL: "https://esp32-smart-environment-9624f-default-rtdb.europe-west1.firebasedatabase.app",
+    projectId: "esp32-smart-environment-9624f",
+    storageBucket: "esp32-smart-environment-9624f.firebasestorage.app",
+    messagingSenderId: "986282112194",
+    appId: "1:986282112194:web:cc69db76f8b009d6a2f75b",
+    measurementId: "G-6ZW0C1LPSX"
+  };
+
+
+  // ==============================
+  // INITIALIZE FIREBASE
+  // ==============================
 
   const app = initializeApp(firebaseConfig);
   const db = getDatabase(app);
+
   const DEVICE_ID = "GO_SENSOR_01";
 
-  const ctx = document.getElementById("chart").getContext("2d");
+
+  // ==============================
+  // CHART
+  // ==============================
+
+  const ctx = document
+    .getElementById("chart")
+    .getContext("2d");
 
   const chart = new Chart(ctx, {
     type: "line",
+
     data: {
       labels: [],
+
       datasets: [{
         label: "Sensor Voltage (V)",
         data: [],
@@ -128,79 +146,298 @@ const firebaseConfig = {
         fill: false
       }]
     },
+
     options: {
       responsive: true,
       maintainAspectRatio: false,
       animation: false,
+
       scales: {
-        x: { title: { display: true, text: "Time" } },
-        y: { title: { display: true, text: "Voltage (V)" } }
+        x: {
+          title: {
+            display: true,
+            text: "Time"
+          }
+        },
+
+        y: {
+          title: {
+            display: true,
+            text: "Voltage (V)"
+          }
+        }
       }
     }
   });
 
-  const deviceRef = ref(db, "devices/" + DEVICE_ID);
 
-  onValue(deviceRef, snapshot => {
-    const data = snapshot.val();
-    if (!data) return;
+  // ==============================
+  // TIMESTAMP FUNCTION
+  // ==============================
 
-    if (data.voltage !== undefined) {
-      document.getElementById("voltage").textContent =
-        Number(data.voltage).toFixed(4);
+  function formatTimestamp(timestamp) {
+
+    if (timestamp === undefined || timestamp === null) {
+      return "--";
     }
 
-    if (data.timestamp !== undefined) {
-      document.getElementById("lastUpdate").textContent =
-        new Date(data.timestamp * 1000).toLocaleTimeString();
+    let value = Number(timestamp);
+
+    if (!Number.isFinite(value)) {
+      return "--";
     }
 
-    document.getElementById("statusDot").classList.add("online");
-    document.getElementById("statusText").textContent = "LIVE";
-  });
+    /*
+      If timestamp is in seconds,
+      convert it to milliseconds.
 
-  const readingsRef = query(
-    ref(db, "readings/" + DEVICE_ID),
-    orderByChild("timestamp"),
-    limitToLast(300)
+      If timestamp is already milliseconds,
+      leave it alone.
+    */
+
+    if (value < 100000000000) {
+      value = value * 1000;
+    }
+
+    return new Date(value).toLocaleTimeString();
+  }
+
+
+  // ==============================
+  // CURRENT SENSOR DATA
+  // ==============================
+
+  const deviceRef = ref(
+    db,
+    "devices/" + DEVICE_ID
   );
 
-  onValue(readingsRef, snapshot => {
-    const data = snapshot.val();
-    if (!data) return;
 
-    const entries = Object.values(data);
-    entries.sort((a, b) => a.timestamp - b.timestamp);
+  onValue(
+    deviceRef,
 
-    chart.data.labels = entries.map(item =>
-      new Date(item.timestamp * 1000).toLocaleTimeString()
-    );
+    (snapshot) => {
 
-    chart.data.datasets[0].data = entries.map(item =>
-      Number(item.voltage)
-    );
+      const data = snapshot.val();
 
-    chart.update();
+      console.log("CURRENT FIREBASE DATA:");
+      console.log(data);
 
-    const table = document.getElementById("measurementTable");
-    table.innerHTML = "";
 
-    entries.slice(-20).reverse().forEach(item => {
-      const row = document.createElement("tr");
-      const time = document.createElement("td");
-      const voltage = document.createElement("td");
+      if (!data) {
+        document.getElementById("statusText").textContent =
+          "NO DATA";
 
-      time.textContent =
-        new Date(item.timestamp * 1000).toLocaleTimeString();
+        return;
+      }
 
-      voltage.textContent =
-        Number(item.voltage).toFixed(4) + " V";
 
-      row.appendChild(time);
-      row.appendChild(voltage);
-      table.appendChild(row);
-    });
-  });
+      // IMPORTANT:
+      // ESP32 sends sensor_voltage_V
+
+      if (data.sensor_voltage_V !== undefined) {
+
+        const voltage = Number(data.sensor_voltage_V);
+
+        if (Number.isFinite(voltage)) {
+
+          document.getElementById("voltage").textContent =
+            voltage.toFixed(4);
+
+        }
+      }
+
+
+      // Timestamp
+
+      if (data.timestamp !== undefined) {
+
+        document.getElementById("lastUpdate").textContent =
+          formatTimestamp(data.timestamp);
+
+      }
+
+
+      // Connection status
+
+      document
+        .getElementById("statusDot")
+        .classList.add("online");
+
+      document.getElementById("statusText").textContent =
+        "LIVE";
+
+    },
+
+    (error) => {
+
+      console.error(
+        "Firebase current-data error:",
+        error
+      );
+
+      document.getElementById("statusText").textContent =
+        "FIREBASE ERROR";
+
+      document
+        .getElementById("statusDot")
+        .classList.remove("online");
+
+    }
+  );
+
+
+  // ==============================
+  // HISTORICAL READINGS
+  // ==============================
+
+  const readingsRef = query(
+
+    ref(
+      db,
+      "readings/" + DEVICE_ID
+    ),
+
+    orderByChild("timestamp"),
+
+    limitToLast(300)
+
+  );
+
+
+  onValue(
+
+    readingsRef,
+
+    (snapshot) => {
+
+      const data = snapshot.val();
+
+      console.log("HISTORICAL FIREBASE DATA:");
+      console.log(data);
+
+
+      if (!data) {
+
+        console.log(
+          "No historical readings found."
+        );
+
+        return;
+      }
+
+
+      // Convert Firebase children into array
+
+      const entries = Object.values(data);
+
+
+      // Remove invalid records
+
+      const validEntries = entries.filter(item => {
+
+        const voltage =
+          Number(item.sensor_voltage_V);
+
+        const timestamp =
+          Number(item.timestamp);
+
+        return (
+          Number.isFinite(voltage) &&
+          Number.isFinite(timestamp)
+        );
+
+      });
+
+
+      // Sort by timestamp
+
+      validEntries.sort(
+        (a, b) =>
+          Number(a.timestamp) -
+          Number(b.timestamp)
+      );
+
+
+      // ==============================
+      // GRAPH
+      // ==============================
+
+      chart.data.labels =
+        validEntries.map(item =>
+          formatTimestamp(item.timestamp)
+        );
+
+
+      chart.data.datasets[0].data =
+        validEntries.map(item =>
+          Number(item.sensor_voltage_V)
+        );
+
+
+      chart.update();
+
+
+      // ==============================
+      // TABLE
+      // ==============================
+
+      const table =
+        document.getElementById(
+          "measurementTable"
+        );
+
+      table.innerHTML = "";
+
+
+      validEntries
+        .slice(-20)
+        .reverse()
+        .forEach(item => {
+
+          const row =
+            document.createElement("tr");
+
+          const time =
+            document.createElement("td");
+
+          const voltage =
+            document.createElement("td");
+
+
+          time.textContent =
+            formatTimestamp(item.timestamp);
+
+
+          voltage.textContent =
+            Number(
+              item.sensor_voltage_V
+            ).toFixed(4) + " V";
+
+
+          row.appendChild(time);
+          row.appendChild(voltage);
+
+          table.appendChild(row);
+
+        });
+
+    },
+
+    (error) => {
+
+      console.error(
+        "Firebase readings error:",
+        error
+      );
+
+      document.getElementById("statusText").textContent =
+        "READ ERROR";
+
+    }
+
+  );
+
 </script>
 </body>
 </html>
